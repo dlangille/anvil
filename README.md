@@ -12,6 +12,15 @@ Relevant background:
 * Distribution of private keys is outside scope.
 * New certs are pulled by the servers/VMs/jails/etc which need them.
 
+The steps to use this stuff:
+
+* create certs in /var/db/acme
+* run collect-certs (see https://github.com/dlangille/collect-certs/blob/master/collect-certs)
+* rsync from /var/db/certs-for-rsync to https://example.org/certs
+* run check-for-new-certs to download and install new certs
+
+The distribution of private keys is outside scope.
+
 Before using: 
 
 ```
