@@ -5,6 +5,13 @@ Designed for FreeBSD (it uses fetch, not wget or curl [yet]).
 
 It also uses sudo, with the goal of this running as non-root and only allowing the cp & mv via sudo.
 
+Relevant background:
+
+* The certificates are being generated via acme.sh in a centralized location.
+* certs are not generated where they are used.
+* Distribution of private keys is outside scope.
+* New certs are pulled by the servers/VMs/jails/etc which need them.
+
 Before using: 
 
 ```
