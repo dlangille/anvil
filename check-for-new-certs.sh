@@ -6,7 +6,7 @@ CERT_SERVER="https://certs.example.org/certs"
 
 MYCERTS="example.com"
 SERVICES="apache24"
-DOWNLOAD_DIR="/var/db/check-for-new-certs"
+DOWNLOAD_DIR="/var/db/anvil"
 
 # be sure to specify the agument & have no spaces in between the single quotes
 USER_AGENT="--user-agent='Check-For-New-Certificate'"
@@ -19,7 +19,7 @@ fi
 
 BASENAME="/usr/bin/basename"
 CP="/bin/cp"
-FETCH="/usr/bin/fetch --mirror --quiet -v ${USER_AGENT}"
+FETCH="/usr/bin/fetch --mirror --quiet -v ${USER_AGENT} --no-mtime"
 FIND_NEW_FILES="/usr/bin/find ${DOWNLOAD_DIR} -mtime 1 -type f"
 LOGGER="/usr/bin/logger"
 MV="/bin/mv"
@@ -55,7 +55,7 @@ do
       ${SUDO} ${SERVICE} ${service} graceful
       ;;
 
-    "dovecot"|"postfix")
+    "dovecot"|"postfix"|"nginx")
       ${SUDO} ${SERVICE} ${service} restart
       ;;
       
