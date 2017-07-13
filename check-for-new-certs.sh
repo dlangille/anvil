@@ -11,7 +11,7 @@ DOWNLOAD_DIR="/var/db/check-for-new-certs"
 # be sure to specify the agument & have no spaces in between the single quotes
 USER_AGENT="--user-agent='Check-For-New-Certificate'"
 
-CONFIG="/usr/local/etc/check-for-new-certs/check-for-new-certs.conf"
+CONFIG="/usr/local/etc/anvil/check-for-new-certs.conf"
 
 if [ -f ${CONFIG} ]; then
   . ${CONFIG}
