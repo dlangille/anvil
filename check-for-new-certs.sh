@@ -13,11 +13,11 @@ SERVICES="apache24"
 DOWNLOAD_DIR="/var/db/anvil"
 
 # be sure to specify the agument & have no spaces in between the single quotes
-USER_AGENT="--user-agent='Check-For-New-Certificate'"
+USER_AGENT="--user-agent='anvil-Check-For-New-Certificate'"
 
 # items below here are not usually altered
 
-CONFIG="/usr/local/etc/anvil/check-for-new-certs.conf"
+CONFIG="/usr/local/etc/anvil/anvil.conf"
 
 if [ -f ${CONFIG} ]; then
   . ${CONFIG}
@@ -41,13 +41,13 @@ FETCH="/usr/bin/fetch --mirror --quiet ${USER_AGENT} --no-mtime"
 
 # we find newly downloaded files and install them.
 # the -mtime should correspond to the frequency this script runs.
-# -mtime 1 = 1 day - so this search catches anything less than one
-# day old.  Since we are using --no-mtime above, any recent downloads
+# -mtime -1 = 1 day - so this search catches anything modified in the 
+# past day.  Since we are using --no-mtime above, any recent downloads
 # should be just a few seconds old.
 # No harm is done by running more frequently than daily.
 # Or by reinstalling certs already downloaded. Services will be
 # restarted. You might not like that.
-FIND_NEW_FILES="/usr/bin/find ${DOWNLOAD_DIR} -mtime 1 -type f"
+FIND_NEW_FILES="/usr/bin/find ${DOWNLOAD_DIR} -mtime -1 -type f"
 
 # if you want to disable logging, not recommend, put a hash before /usr
 LOGGER="/usr/bin/logger -t anvil"
@@ -72,7 +72,7 @@ sudo_examples(){
     FILES_FETCHING="ca.cer ${cert}.cer ${cert}.fullchain.cer"
     for file in ${FILES_FETCHING}
     do
-      echo "anvil   ALL=(ALL) NOPASSWD:${CP} -a ${file} ${CERT_DST}/${file}.tmp"
+      echo "anvil   ALL=(ALL) NOPASSWD:${CP} -a ${DOWNLOAD_DIR}/${file} ${CERT_DST}/${file}.tmp"
       echo "anvil   ALL=(ALL) NOPASSWD:${MV} ${CERT_DST}/${file}.tmp ${CERT_DST}/${file}"
     done
   done
@@ -93,21 +93,21 @@ sudo_examples(){
 
 fetch_new_certs(){
   # first, we fetch the certs are looking for.
-  cd ${DOWNLOAD_DIR}
-
+  ${LOGGER} fetching into ${DOWNLOAD_DIR}
   for cert in ${MYCERTS}
   do
+    ${LOGGER} checking certs for ${cert}
     FILES_FETCHING="ca.cer ${cert}.cer ${cert}.fullchain.cer"
     for file in ${FILES_FETCHING}
     do
-      ${FETCH} ${CERT_SERVER}/${cert}/${file}
+      ${LOGGER}         "${cert}::${file}"
+      ${FETCH} -o ${DOWNLOAD_DIR} ${CERT_SERVER}/${cert}/${file}
     done
   done
 }
 
 install_new_certs(){
-  ${LOGGER} looking for new files
-
+  ${LOGGER} looking for new files: ${FIND_NEW_FILES}
   # for each new thing we find, move it over to the right place
   NEW_FILES=`${FIND_NEW_FILES}`
   for new_file in ${NEW_FILES}
@@ -120,6 +120,7 @@ install_new_certs(){
     #
     ${SUDO} ${CP} -a ${new_file} ${CERT_DST}/${filename}.tmp
     ${SUDO} ${MV} ${CERT_DST}/${filename}.tmp ${CERT_DST}/${filename}
+    NEW_CERTS_FOUND=1
   done
 }
 
@@ -170,6 +171,9 @@ while getopts "hs" opt; do
   esac
 done
 
+#
+# give them samples for visudo
+#
 if [ ${SUDO_EXAMPLES} == "1" ]; then
   sudo_examples
   exit
