@@ -39,10 +39,8 @@ Variables which can be set in cert-shifter.conf:
 
 ```
 CERT_SRC="/var/db/acme/certs"
-
 CERT_DST_ROOT="/var/db/certs-for-rsync"
 CERT_DST_CERTS="${CERT_DST_ROOT}/certs"
-
 TMP="${CERT_DST_ROOT}/tmp"
 ```
 
