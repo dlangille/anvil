@@ -1,0 +1,62 @@
+#!/bin/sh
+
+CERT_SRC="/var/db/acme/certs"
+
+CERT_DST_ROOT="/var/db/certs-for-rsync"
+CERT_DST_CERTS="${CERT_DST_ROOT}/certs"
+
+TMP="${CERT_DST_ROOT}/tmp"
+
+# items below here are not usually altered
+
+CONFIG="/usr/local/etc/anvil/anvil-collector.conf"
+
+if [ -f ${CONFIG} ]; then
+  . ${CONFIG}
+fi
+
+BASENAME="/usr/bin/basename"
+CP="/bin/cp"
+FIND="/usr/bin/find"
+GREP="/usr/bin/grep"
+LOGGER="/usr/bin/logger -t anvil-collector"
+MKDIR="/bin/mkdir"
+MV="/bin/mv"
+RMDIR="/bin/rmdir"
+SYSRC="/usr/sbin/sysrc"
+
+${LOGGER} starting $0
+
+# find directories modified in the past 24 hours, assuming this script runs once a day
+DIRS=`${FIND} ${CERT_SRC} -mtime -1 -type d -d 1`
+for dir in ${DIRS}
+do
+  cert=`${BASENAME} ${dir}`
+  # check the cert config file & ignore anything from staging
+  STAGING_USED=`${SYSRC} -nf ${cert}/${cert}.conf Le_API | ${GREP} staging`
+  if [ ! ${STAGING_USED} ]; then
+    ${LOGGER} collecting from ${dir}
+
+    # this is not staging
+    ${MKDIR} ${TMP}/${cert}
+  
+    ${CP} -a ${CERT_SRC}/${cert}/${cert}.cer   ${TMP}/${cert}/
+    ${CP} -a ${CERT_SRC}/${cert}/ca.cer        ${TMP}/${cert}/
+    ${CP} -a ${CERT_SRC}/${cert}/fullchain.cer ${TMP}/${cert}/${cert}.fullchain.cer
+
+    # if the destination directory already exists, overwrite the contents and
+    # remove the directory we just created.
+    if [ -d "${CERT_DST_CERTS}/${cert}" ]; then
+      ${MV} -f ${TMP}/${cert}/* ${CERT_DST_CERTS}/${cert}
+      ${RMDIR} ${TMP}/${cert}
+    else
+      # otherwise, move what we just created into the destination
+      # we prefer mv over cp to avoid race conditions.
+      ${MV} ${TMP}/${cert} ${CERT_DST_CERTS}/
+    fi
+  else
+    ${LOGGER} ignoring cert from ${dir} because it is STAGING
+  fi
+done
+
+${LOGGER} stopping $0
