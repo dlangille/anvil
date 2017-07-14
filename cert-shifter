@@ -9,7 +9,7 @@ TMP="${CERT_DST_ROOT}/tmp"
 
 # items below here are not usually altered
 
-CONFIG="/usr/local/etc/anvil/anvil-collector.conf"
+CONFIG="/usr/local/etc/anvil/cert-shifter.conf"
 
 if [ -f ${CONFIG} ]; then
   . ${CONFIG}

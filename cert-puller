@@ -13,11 +13,11 @@ SERVICES="apache24"
 DOWNLOAD_DIR="/var/db/anvil"
 
 # be sure to specify the agument & have no spaces in between the single quotes
-USER_AGENT="--user-agent='anvil-Check-For-New-Certificate'"
+USER_AGENT="--user-agent='anvil-cert-puller'"
 
 # items below here are not usually altered
 
-CONFIG="/usr/local/etc/anvil/anvil.conf"
+CONFIG="/usr/local/etc/anvil/cert-puller.conf"
 
 if [ -f ${CONFIG} ]; then
   . ${CONFIG}
