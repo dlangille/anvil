@@ -33,7 +33,7 @@ for dir in ${DIRS}
 do
   cert=`${BASENAME} ${dir}`
   # check the cert config file & ignore anything from staging
-  STAGING_USED=`${SYSRC} -nf ${cert}/${cert}.conf Le_API | ${GREP} staging`
+  STAGING_USED=`${SYSRC} -qnf ${CERT_SRC}/${cert}/${cert}.conf Le_API | ${GREP} staging`
   if [ ! ${STAGING_USED} ]; then
     ${LOGGER} collecting from ${dir}
 
