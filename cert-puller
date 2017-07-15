@@ -50,7 +50,7 @@ FETCH="/usr/bin/fetch --mirror --quiet ${USER_AGENT} --no-mtime"
 FIND_NEW_FILES="/usr/bin/find ${DOWNLOAD_DIR} -mtime -1 -type f"
 
 # if you want to disable logging, not recommend, put a hash before /usr
-LOGGER="/usr/bin/logger -t anvil"
+LOGGER="/usr/bin/logger -t cert-puller"
 MV="/bin/mv"
 SERVICE="/usr/sbin/service"
 SUDO="/usr/local/bin/sudo"
