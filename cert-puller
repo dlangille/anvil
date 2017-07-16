@@ -31,23 +31,15 @@ NEW_CERTS_FOUND=0
 # various commands used by this script
 BASENAME="/usr/bin/basename"
 CP="/bin/cp"
-
+DIFF="/usr/bin/diff"
 #
 # --mirror avoids replacement when identical
 # --quiet avoids noise
-# --no-mtime ensure newly downloaded fails are new and acted upon
 #
-FETCH="/usr/bin/fetch --mirror --quiet ${USER_AGENT} --no-mtime"
+FETCH="/usr/bin/fetch --mirror --quiet ${USER_AGENT}"
 
-# we find newly downloaded files and install them.
-# the -mtime should correspond to the frequency this script runs.
-# -mtime -1 = 1 day - so this search catches anything modified in the 
-# past day.  Since we are using --no-mtime above, any recent downloads
-# should be just a few seconds old.
-# No harm is done by running more frequently than daily.
-# Or by reinstalling certs already downloaded. Services will be
-# restarted. You might not like that.
-FIND_NEW_FILES="/usr/bin/find ${DOWNLOAD_DIR} -mtime -1 -type f"
+# These are the downlaoded certs which we will consider for installation
+FIND_CERT_FILES="/usr/bin/find ${DOWNLOAD_DIR} -type f"
 
 # if you want to disable logging, not recommend, put a hash before /usr
 LOGGER="/usr/bin/logger -t cert-puller"
@@ -100,27 +92,39 @@ fetch_new_certs(){
     FILES_FETCHING="ca.cer ${cert}.cer ${cert}.fullchain.cer"
     for file in ${FILES_FETCHING}
     do
-      ${LOGGER}         "${cert}::${file}"
+      ${LOGGER}         "${cert} :: ${file}"
       ${FETCH} -o ${DOWNLOAD_DIR} ${CERT_SERVER}/${cert}/${file}
     done
   done
 }
 
 install_new_certs(){
-  ${LOGGER} looking for new files: ${FIND_NEW_FILES}
+  ${LOGGER} looking for cert files: ${FIND_CERT_FILES}
   # for each new thing we find, move it over to the right place
-  NEW_FILES=`${FIND_NEW_FILES}`
+  NEW_FILES=`${FIND_CERT_FILES}`
   for new_file in ${NEW_FILES}
   do
     filename=`${BASENAME} ${new_file}`
-    ${LOGGER} installing ${filename}
+    ${LOGGER} validating ${filename}
 
-    #
-    # NOTE: the code here must closely match that within sudo_examples() & restart_services()
-    #
-    ${SUDO} ${CP} -a ${new_file} ${CERT_DST}/${filename}.tmp
-    ${SUDO} ${MV} ${CERT_DST}/${filename}.tmp ${CERT_DST}/${filename}
-    NEW_CERTS_FOUND=1
+    # that cert may not be installed
+    if [ -f ${CERT_DST}/${filename} ]; then
+      diff=`${DIFF} ${new_file} ${CERT_DST}/${filename}`
+    else
+      diff="x";
+      ${LOGGER} ${filename} does not exist and will be installed
+    fi
+
+    # only install if the certs are different.
+    if [ "${diff}X" != "X" ]; then
+      ${LOGGER} installing ${filename}
+      #
+      # NOTE: the code here must closely match that within sudo_examples() & restart_services()
+      #
+      ${SUDO} ${CP} -a ${new_file} ${CERT_DST}/${filename}.tmp
+      ${SUDO} ${MV} ${CERT_DST}/${filename}.tmp ${CERT_DST}/${filename}
+      NEW_CERTS_FOUND=1
+    fi
   done
 }
 
