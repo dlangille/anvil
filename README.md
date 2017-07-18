@@ -25,6 +25,10 @@ The steps to use this stuff:
 
 The distribution of private keys is outside scope.
 
+<p align="center">Overview of anvil use</p>
+<img src ="https://github.com/dlangille/anvil/blob/master/images/anvil-overiew.png?raw=true" title="Overview of anvil use" alt="Overview of anvil use"/>
+
+
 Before using: 
 
 ```
