@@ -83,6 +83,14 @@ sudo_examples(){
   done
 }
 
+sanity_checks(){
+  if [ ! -r "${CERT_DST}" -o ! -d "${CERT_DST}" ]; then
+    ${LOGGER} "${CERT_DST}" is NOT readable and a directory
+    ${LOGGER} $0 exits
+    exit 2
+  fi
+}
+
 fetch_new_certs(){
   # first, we fetch the certs are looking for.
   ${LOGGER} fetching into ${DOWNLOAD_DIR}
@@ -184,10 +192,12 @@ done
 #
 if [ ${SUDO_EXAMPLES} == "1" ]; then
   sudo_examples
-  exit
+  exit 1
 fi
 
 ${LOGGER} starting $0
+
+sanity_checks
 
 fetch_new_certs
 
