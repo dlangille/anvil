@@ -19,7 +19,7 @@ USER_AGENT="anvil-cert-puller"
 # --mirror avoids replacement when identical
 # --quiet avoids noise
 #
-FETCH="/usr/bin/fetch --mirror --quiet --user-agent=${USER_AGENT}'"
+FETCH="/usr/bin/fetch --mirror --quiet --user-agent='${USER_AGENT}'"
 
 CURL="/usr/local/bin/curl --silent --user-agent '${USER_AGENT}' --remote-time"
 
