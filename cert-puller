@@ -13,8 +13,19 @@ SERVICES="apache24"
 DOWNLOAD_DIR="/var/db/anvil"
 
 # be sure to specify the agument & have no spaces in between the single quotes
-USER_AGENT="--user-agent='anvil-cert-puller'"
+USER_AGENT="anvil-cert-puller"
 
+#
+# --mirror avoids replacement when identical
+# --quiet avoids noise
+#
+FETCH="/usr/bin/fetch --mirror --quiet --user-agent=${USER_AGENT}'"
+
+CURL="/usr/local/bin/curl --silent --user-agent '${USER_AGENT}' --remote-time"
+
+WGET="/usr/local/bin/wget --quiet --user-agent='${USER_AGENT}'"
+
+# items above can be overridden via the configuration file
 # items below here are not usually altered
 
 CONFIG="/usr/local/etc/anvil/cert-puller.conf"
@@ -32,12 +43,6 @@ NEW_CERTS_FOUND=0
 BASENAME="/usr/bin/basename"
 CP="/bin/cp"
 DIFF="/usr/bin/diff"
-#
-# --mirror avoids replacement when identical
-# --quiet avoids noise
-#
-FETCH="/usr/bin/fetch --mirror --quiet ${USER_AGENT}"
-
 # These are the downlaoded certs which we will consider for installation
 FIND_CERT_FILES="/usr/bin/find ${DOWNLOAD_DIR} -type f"
 
@@ -101,7 +106,20 @@ fetch_new_certs(){
     for file in ${FILES_FETCHING}
     do
       ${LOGGER}         "${cert} :: ${file}"
-      ${FETCH} -o ${DOWNLOAD_DIR} ${CERT_SERVER}/${cert}/${file}
+      case ${FETCH_TOOL} in
+        "wget")
+          ${LOGGER} running: ${WGET} --output-document=${DOWNLOAD_DIR}/${file} ${CERT_SERVER}/${cert}/${file}
+          ${WGET} --output-document=${DOWNLOAD_DIR}/${file} ${CERT_SERVER}/${cert}/${file}
+          ;;
+        "curl")
+          ${LOGGER} running: ${CURL} -o ${DOWNLOAD_DIR}/${file} ${CERT_SERVER}/${cert}/${file}
+          ${CURL} -o ${DOWNLOAD_DIR}/${file} ${CERT_SERVER}/${cert}/${file}
+          ;;
+        *)
+          ${LOGGER} running: ${FETCH} -o ${DOWNLOAD_DIR} ${CERT_SERVER}/${cert}/${file}
+          ${FETCH} -o ${DOWNLOAD_DIR} ${CERT_SERVER}/${cert}/${file}
+          ;;
+      esac
       RESULT=$?
       if [ "${RESULT}" != "0" ]; then
         ${LOGGER} "error '${RESULT}' on fetch - perhaps the remote file does not exist."

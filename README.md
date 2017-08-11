@@ -2,7 +2,9 @@
 
 Tools for distributing ssl certificates
 
-Designed for FreeBSD (it uses fetch, not wget or curl [yet]). 
+Designed on FreeBSD, it uses fetch by default, but can also use wget or curl.
+Set FETCH_TOOL in the configuration file to either wget or curl. Any other
+value will invoke fetch.
 
 It also uses sudo, with the goal of this running as non-root and only allowing the cp & mv via sudo.
 
