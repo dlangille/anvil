@@ -62,8 +62,16 @@ MYCERTS="example.com"
 SERVICES="apache24"
 DOWNLOAD_DIR="/var/db/check-for-new-certs"
 USER_AGENT="--user-agent='anvil-cert-puller'"
+FETCH="/usr/bin/fetch --mirror --quiet --user-agent=${USER_AGENT}'"
+CURL="/usr/local/bin/curl --silent --user-agent '${USER_AGENT}' --remote-time"
+WGET="/usr/local/bin/wget --quiet --user-agent='${USER_AGENT}'"
+
 ```
 
 Services which can be restarted by this code: apache24, dovecot, postfix.
+
+To use wget, set FETCH_TOOL="wget" in cert-puller.conf
+To use curl, set FETCH_TOOL="curl" in cert-puller.conf
+To use fetch, set FETCH_TOOL to any other value, or remove it from the file.
 
 Yep, lots to work on here.
