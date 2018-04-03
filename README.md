@@ -68,7 +68,7 @@ WGET="/usr/local/bin/wget --quiet --user-agent='${USER_AGENT}'"
 
 ```
 
-Services which can be restarted by this code: apache24, dovecot, postfix.
+Services which can be restarted by this code: apache24, dovecot, mosquitto, postfix.
 
 To use wget, set FETCH_TOOL="wget" in cert-puller.conf
 To use curl, set FETCH_TOOL="curl" in cert-puller.conf

@@ -81,7 +81,7 @@ sudo_examples(){
         echo "anvil   ALL=(ALL) NOPASSWD:${SERVICE} ${service} graceful"
         ;;
 
-      "dovecot"|"postfix"|"nginx")
+      "dovecot"|"mosquitto"|"nginx"|"postfix")
         echo "anvil   ALL=(ALL) NOPASSWD:${SERVICE} ${service} restart"
         ;;
     esac
@@ -173,7 +173,7 @@ restart_services(){
 
       # it might be better if we do a reload.
       # will that be sufficient?
-      "dovecot"|"postfix"|"nginx")
+      "dovecot"|"mosquitto"|"nginx"|"postfix")
         ${LOGGER} restarting ${service}
         ${SUDO} ${SERVICE} ${service} restart
         ;;
