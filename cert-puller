@@ -77,11 +77,11 @@ sudo_examples(){
   for service in ${SERVICES}
   do
     case ${service} in
-      "apache24")
+      "apache22" | "apache24")
         echo "anvil   ALL=(ALL) NOPASSWD:${SERVICE} ${service} graceful"
         ;;
 
-      "dovecot"|"mosquitto"|"nginx"|"postfix")
+      "dovecot" | "mosquitto" | "nginx" | "postfix")
         echo "anvil   ALL=(ALL) NOPASSWD:${SERVICE} ${service} restart"
         ;;
     esac
@@ -166,14 +166,14 @@ restart_services(){
   for service in ${SERVICES}
   do
     case ${service} in
-      "apache24")
+      "apache22" | "apache24")
         ${LOGGER} doing a graceful on ${service}
         ${SUDO} ${SERVICE} ${service} graceful
         ;;
 
       # it might be better if we do a reload.
       # will that be sufficient?
-      "dovecot"|"mosquitto"|"nginx"|"postfix")
+      "dovecot" | "mosquitto" | "nginx" | "postfix")
         ${LOGGER} restarting ${service}
         ${SUDO} ${SERVICE} ${service} restart
         ;;
