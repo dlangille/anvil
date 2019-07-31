@@ -152,7 +152,13 @@ install_new_certs(){
       # NOTE: the code here must closely match that within sudo_examples() & restart_services()
       #
       ${SUDO} ${CP} -a ${new_file} ${CERT_DST}/${filename}.tmp
+      if [ $? != 0 ]; then
+         ${LOGGER} FATAL: could not install ${new_file} to ${CERT_DST}/${filename}.tmp - are the sudo permissions up to date? see cert-puller -s
+      fi
       ${SUDO} ${MV} ${CERT_DST}/${filename}.tmp ${CERT_DST}/${filename}
+      if [ $? != 0 ]; then
+         ${LOGGER} FATAL: could not install ${CERT_DST}/${filename}.tmp to ${CERT_DST}/${filename} - are the sudo permissions up to date? see cert-puller -s
+      fi
       NEW_CERTS_FOUND=1
     fi
   done
