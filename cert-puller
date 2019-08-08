@@ -81,7 +81,7 @@ sudo_examples(){
         echo "anvil   ALL=(ALL) NOPASSWD:${SERVICE} ${service} graceful"
         ;;
 
-      "dovecot" | "mosquitto" | "nginx" | "postfix")
+      "dovecot" | "mosquitto" | "nginx" | "postfix" | "postgresql")
         echo "anvil   ALL=(ALL) NOPASSWD:${SERVICE} ${service} restart"
         ;;
     esac
@@ -174,14 +174,28 @@ restart_services(){
     case ${service} in
       "apache22" | "apache24")
         ${LOGGER} doing a graceful on ${service}
-        ${SUDO} ${SERVICE} ${service} graceful
+        ERRORS=`${SUDO} ${SERVICE} ${service} graceful 2>&1`
+        if [ $? != 0 ]; then
+          ${LOGGER} ERROR on restart
+          ${LOGGER} "${ERRORS}"
+          echo "${ERRORS}"
+        else
+          ${LOGGER} no errors on restart
+        fi
         ;;
 
       # it might be better if we do a reload.
       # will that be sufficient?
-      "dovecot" | "mosquitto" | "nginx" | "postfix")
+      "dovecot" | "mosquitto" | "nginx" | "postfix" | "postgresql" )
         ${LOGGER} restarting ${service}
-        ${SUDO} ${SERVICE} ${service} restart
+        ERRORS=`${SUDO} ${SERVICE} ${service} restart 2>&1`
+        if [ $? != 0 ]; then
+          ${LOGGER} ERROR on restart
+          ${LOGGER} "${ERRORS}"
+          echo "${ERRORS}"
+        else
+          ${LOGGER} no errors on restart
+        fi
         ;;
       
       *)
