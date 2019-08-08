@@ -17,6 +17,7 @@ fi
 
 BASENAME="/usr/bin/basename"
 CP="/bin/cp"
+CMP="/usr/bin/cmp --quiet"
 FIND="/usr/bin/find"
 GREP="/usr/bin/grep"
 LOGGER="/usr/bin/logger -t cert-shifter"
@@ -28,34 +29,41 @@ SYSRC="/usr/sbin/sysrc"
 ${LOGGER} starting $0
 
 # find directories modified in the past 24 hours, assuming this script runs once a day
-DIRS=`${FIND} ${CERT_SRC} -mtime -1 -type d -d 1`
+DIRS=`${FIND} ${CERT_SRC} -mtime -$DAYS -type d -d 1`
 for dir in ${DIRS}
 do
   cert=`${BASENAME} ${dir}`
   # check the cert config file & ignore anything from staging
   STAGING_USED=`${SYSRC} -qnf ${CERT_SRC}/${cert}/${cert}.conf Le_API | ${GREP} staging`
   if [ ! ${STAGING_USED} ]; then
-    ${LOGGER} collecting from ${dir}
+    # if the dest directory does not exist, or the dest cert does not exist, or the existing cert differs
+    if [ ! -d ${CERT_DST_CERTS}/${cert} -o ! -f ${CERT_DST_CERTS}/${cert}/${cert}.cer -o `$CMP ${CERT_SRC}/${cert}/${cert}.cer ${CERT_DST_CERTS}/${cert}/${cert}.cer` ]; then
+      # copy it over
 
-    # this is not staging
-    ${MKDIR} ${TMP}/${cert}
+      ${LOGGER} $cert HAD NEW STUFF IN ${dir}
+
+      # this is not staging
+      ${MKDIR} ${TMP}/${cert}
   
-    ${CP} -a ${CERT_SRC}/${cert}/${cert}.cer   ${TMP}/${cert}/
-    ${CP} -a ${CERT_SRC}/${cert}/ca.cer        ${TMP}/${cert}/
-    ${CP} -a ${CERT_SRC}/${cert}/fullchain.cer ${TMP}/${cert}/${cert}.fullchain.cer
+      ${CP} -a ${CERT_SRC}/${cert}/${cert}.cer   ${TMP}/${cert}/
+      ${CP} -a ${CERT_SRC}/${cert}/ca.cer        ${TMP}/${cert}/
+      ${CP} -a ${CERT_SRC}/${cert}/fullchain.cer ${TMP}/${cert}/${cert}.fullchain.cer
 
-    # if the destination directory already exists, overwrite the contents and
-    # remove the directory we just created.
-    if [ -d "${CERT_DST_CERTS}/${cert}" ]; then
-      ${MV} -f ${TMP}/${cert}/* ${CERT_DST_CERTS}/${cert}
-      ${RMDIR} ${TMP}/${cert}
+      # if the destination directory already exists, overwrite the contents and
+      # remove the directory we just created.
+      if [ -d "${CERT_DST_CERTS}/${cert}" ]; then
+        ${MV} -f ${TMP}/${cert}/* ${CERT_DST_CERTS}/${cert}
+        ${RMDIR} ${TMP}/${cert}
+      else
+        # otherwise, move what we just created into the destination
+        # we prefer mv over cp to avoid race conditions.
+        ${MV} ${TMP}/${cert} ${CERT_DST_CERTS}/
+      fi
     else
-      # otherwise, move what we just created into the destination
-      # we prefer mv over cp to avoid race conditions.
-      ${MV} ${TMP}/${cert} ${CERT_DST_CERTS}/
-    fi
+      ${LOGGER} $cert
+    fi # yeah, the cert has changed
   else
-    ${LOGGER} ignoring cert from ${dir} because it is STAGING
+    ${LOGGER} $cert IS BEING IGNORED BECAUSE IT IS STAGING
   fi
 done
 
