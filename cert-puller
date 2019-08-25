@@ -176,17 +176,17 @@ restart_services(){
         ${LOGGER} doing a graceful on ${service}
         ERRORS=`${SUDO} ${SERVICE} ${service} graceful 2>&1`
         if [ $? != 0 ]; then
-          ${LOGGER} ERROR on restart
+          ${LOGGER} ERROR on graceful
           ${LOGGER} "${ERRORS}"
           echo "${ERRORS}"
         else
-          ${LOGGER} no errors on restart
+          ${LOGGER} no errors on graceful
         fi
         ;;
 
       # it might be better if we do a reload.
       # will that be sufficient?
-      "dovecot" | "mosquitto" | "nginx" | "postfix" | "postgresql" )
+      "dovecot" | "mosquitto" | "nginx" | "postfix" )
         ${LOGGER} restarting ${service}
         ERRORS=`${SUDO} ${SERVICE} ${service} restart 2>&1`
         if [ $? != 0 ]; then
@@ -197,7 +197,20 @@ restart_services(){
           ${LOGGER} no errors on restart
         fi
         ;;
-      
+
+      # For Postgresql, we only do a reload
+      "postgresql" )
+        ${LOGGER} reloading ${service}
+        ERRORS=`${SUDO} ${SERVICE} ${service} reload 2>&1`
+        if [ $? != 0 ]; then
+          ${LOGGER} ERROR on reload
+          ${LOGGER} "${ERRORS}"
+          echo "${ERRORS}"
+        else
+          ${LOGGER} no errors on reload
+        fi
+        ;;
+
       *)
         ${LOGGER} "Unknown service requested in $0: ${service}"
         ;;
