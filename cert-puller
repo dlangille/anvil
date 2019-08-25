@@ -81,8 +81,12 @@ sudo_examples(){
         echo "anvil   ALL=(ALL) NOPASSWD:${SERVICE} ${service} graceful"
         ;;
 
-      "dovecot" | "mosquitto" | "nginx" | "postfix" | "postgresql")
+      "dovecot" | "mosquitto" | "nginx" | "postfix")
         echo "anvil   ALL=(ALL) NOPASSWD:${SERVICE} ${service} restart"
+        ;;
+
+      "postgresql")
+        echo "anvil   ALL=(ALL) NOPASSWD:${SERVICE} ${service} reload"
         ;;
     esac
   done
