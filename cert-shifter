@@ -15,10 +15,6 @@ if [ -f ${CONFIG} ]; then
   . ${CONFIG}
 fi
 
-# We need a default values for DAYS
-
-: ${DAYS="1"}
-
 BASENAME="/usr/bin/basename"
 CP="/bin/cp"
 CMP="/usr/bin/cmp --quiet"
@@ -30,18 +26,38 @@ MV="/bin/mv"
 RMDIR="/bin/rmdir"
 SYSRC="/usr/sbin/sysrc"
 
-${LOGGER} starting $0 and searching back $DAYS days.
+${LOGGER} starting $0
 
-# find directories modified in the past 24 hours, assuming this script runs once a day
-DIRS=`${FIND} ${CERT_SRC} -mtime -$DAYS -type d -d 1`
+# Find directories, each of which will contain a cert.
+# We can't rely on mtimes, because the content may differ
+# even with identical mtime.
+# Also, the dst and src may get out of sync.
+# The complete solution is to scan everything.
+# We sort to make it easier when you review the logs.
+# 
+DIRS=`${FIND} ${CERT_SRC} -type d -d 1 | sort`
 for dir in ${DIRS}
 do
   cert=`${BASENAME} ${dir}`
   # check the cert config file & ignore anything from staging
   STAGING_USED=`${SYSRC} -qnf ${CERT_SRC}/${cert}/${cert}.conf Le_API | ${GREP} staging`
   if [ ! ${STAGING_USED} ]; then
+    REFRESH="0"
     # if the dest directory does not exist, or the dest cert does not exist, or the existing cert differs
-    if [ ! -d ${CERT_DST_CERTS}/${cert} -o ! -f ${CERT_DST_CERTS}/${cert}/${cert}.cer -o `$CMP ${CERT_SRC}/${cert}/${cert}.cer ${CERT_DST_CERTS}/${cert}/${cert}.cer` ]; then
+
+    if [ ! -d ${CERT_DST_CERTS}/${cert} -o ! -f ${CERT_DST_CERTS}/${cert}/${cert}.cer ]; then
+      # if the destination directory does not exist or the directory does not contain the cert
+      # we must copy.
+      REFRESH="1"
+    else
+      # the files, compare them
+      `$CMP ${CERT_SRC}/${cert}/${cert}.cer ${CERT_DST_CERTS}/${cert}/${cert}.cer`
+      if [ "$?" != "0" ]; then
+        REFRESH="1"
+      fi
+    fi
+    
+    if [ "$REFRESH" != "0" ]; then
       # copy it over
 
       ${LOGGER} $cert HAD NEW STUFF IN ${dir}
