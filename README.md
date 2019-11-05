@@ -60,6 +60,8 @@ CERT_DST="/usr/local/etc/ssl"
 CERT_SERVER="https://certs.example.org/certs"
 MYCERTS="example.com"
 SERVICES="apache24"
+SERVICES_RELOAD="postgresql"
+SERVICES_RESTART="postfix"
 DOWNLOAD_DIR="/var/db/check-for-new-certs"
 USER_AGENT="--user-agent='anvil-cert-puller'"
 FETCH="/usr/bin/fetch --mirror --quiet --user-agent=${USER_AGENT}'"
@@ -68,7 +70,17 @@ WGET="/usr/local/bin/wget --quiet --user-agent='${USER_AGENT}'"
 
 ```
 
-Services which can be restarted by this code: apache24, dovecot, mosquitto, postfix.
+After getting new certs, services need to be restarted/reloaded.
+
+
+* Services which can be restarted/reloaded by SERVICES: apache22, apache24, dovecot, mosquitto,
+  nginx, postfix, postgresql
+
+* Services which can be restarted by SERVICES_RESTART: unlimited, anything you
+  want.
+
+* Services which can be reloaded by SERVICES_RELOAD: unlimited, anything you
+  want.
 
 To use wget, set FETCH_TOOL="wget" in cert-puller.conf
 To use curl, set FETCH_TOOL="curl" in cert-puller.conf

@@ -62,7 +62,7 @@ sudo_examples(){
   # this function prints out commands which you can use with visudo to copy/paste
 
   #
-  # NOTE: the code here must closely match that within install_new_certs() & restart_services()
+  # NOTE: the code here must closely match that within install_new_certs() & restart_services() & restart_services_user()
   #
   for cert in ${MYCERTS}
   do
@@ -89,6 +89,16 @@ sudo_examples(){
         echo "anvil   ALL=(ALL) NOPASSWD:${SERVICE} ${service} reload"
         ;;
     esac
+  done
+
+  for service in ${SERVICES_RELOAD}
+  do
+    echo "anvil   ALL=(ALL) NOPASSWD:${SERVICE} ${service} reload"
+  done
+
+  for service in ${SERVICES_RESTART}
+  do
+    echo "anvil   ALL=(ALL) NOPASSWD:${SERVICE} ${service} restart"
   done
 }
 
@@ -171,8 +181,9 @@ install_new_certs(){
 
 restart_services(){
   #
-  # NOTE: the code here must closely match that within sudo_examples() & install_new_certs()
+  # NOTE: the code here must closely match that within sudo_examples()
   #
+  
   for service in ${SERVICES}
   do
     case ${service} in
@@ -222,6 +233,39 @@ restart_services(){
   done
 }
 
+restart_services_user(){
+  #
+  # NOTE: the code here must closely match that within sudo_examples()
+  #
+  for service in ${SERVICES_RELOAD}
+  do
+    ${LOGGER} doing a reload on ${service}
+    ERRORS=`${SUDO} ${SERVICE} ${service} reload 2>&1`
+    if [ $? != 0 ]; then
+      ${LOGGER} ERROR on reload
+      ${LOGGER} "${ERRORS}"
+      echo "${ERRORS}"
+    else
+      ${LOGGER} no errors on reload
+    fi
+    ;;
+  done
+
+  for service in ${SERVICES_RESTART}
+  do
+    ${LOGGER} doing a restart on ${service}
+    ERRORS=`${SUDO} ${SERVICE} ${service} restart 2>&1`
+    if [ $? != 0 ]; then
+      ${LOGGER} ERROR on restart
+      ${LOGGER} "${ERRORS}"
+      echo "${ERRORS}"
+    else
+      ${LOGGER} no errors on restart
+    fi
+    ;;
+  done
+}
+
 #
 # main code starts here
 #
@@ -260,6 +304,7 @@ install_new_certs
 
 if [ ${NEW_CERTS_FOUND} == "1" ]; then
   restart_services
+  restart_services_user
 else
   ${LOGGER} no new certs found
 fi
