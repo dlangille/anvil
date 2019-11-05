@@ -10,7 +10,7 @@ MYCERTS="example.com"
 # a space separated list of services to restart/reload
 SERVICES=""
 SERVICES_RELOAD=""
-SERVICES_RESTART
+SERVICES_RESTART=""
 
 DOWNLOAD_DIR="/var/db/anvil"
 
