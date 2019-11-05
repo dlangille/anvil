@@ -7,8 +7,10 @@ CERT_SERVER="https://certs.example.org/certs"
 # a space separated list of domains for which certs will be downloads
 MYCERTS="example.com"
 
-# a space separated list of services to restart
-SERVICES="apache24"
+# a space separated list of services to restart/reload
+SERVICES=""
+SERVICES_RELOAD=""
+SERVICES_RESTART
 
 DOWNLOAD_DIR="/var/db/anvil"
 
@@ -248,7 +250,6 @@ restart_services_user(){
     else
       ${LOGGER} no errors on reload
     fi
-    ;;
   done
 
   for service in ${SERVICES_RESTART}
@@ -262,7 +263,6 @@ restart_services_user(){
     else
       ${LOGGER} no errors on restart
     fi
-    ;;
   done
 }
 
