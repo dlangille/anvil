@@ -125,15 +125,15 @@ fetch_new_certs(){
       case ${FETCH_TOOL} in
         "wget")
           ${LOGGER} running: ${WGET} --output-document=${DOWNLOAD_DIR}/${file} ${CERT_SERVER}/${cert}/${file}
-          ${WGET} --output-document=${DOWNLOAD_DIR}/${file} ${CERT_SERVER}/${cert}/${file}
+          ${WGET} ${WGET_OPTIONS} --output-document=${DOWNLOAD_DIR}/${file} ${CERT_SERVER}/${cert}/${file}
           ;;
         "curl")
           ${LOGGER} running: ${CURL} -o ${DOWNLOAD_DIR}/${file} ${CERT_SERVER}/${cert}/${file}
-          ${CURL} -o ${DOWNLOAD_DIR}/${file} ${CERT_SERVER}/${cert}/${file}
+          ${CURL} ${CURL_OPTIONS} -o ${DOWNLOAD_DIR}/${file} ${CERT_SERVER}/${cert}/${file}
           ;;
         *)
           ${LOGGER} running: ${FETCH} -o ${DOWNLOAD_DIR} ${CERT_SERVER}/${cert}/${file}
-          ${FETCH} -o ${DOWNLOAD_DIR} ${CERT_SERVER}/${cert}/${file}
+          ${FETCH} ${FETCH_OPTIONS} -o ${DOWNLOAD_DIR} ${CERT_SERVER}/${cert}/${file}
           ;;
       esac
       RESULT=$?

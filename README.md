@@ -67,7 +67,9 @@ USER_AGENT="--user-agent='anvil-cert-puller'"
 FETCH="/usr/bin/fetch --mirror --quiet --user-agent=${USER_AGENT}'"
 CURL="/usr/local/bin/curl --silent --user-agent '${USER_AGENT}' --remote-time"
 WGET="/usr/local/bin/wget --quiet --user-agent='${USER_AGENT}'"
-
+FETCH_OPTIONS="-4"
+CURL_OPTIONS="-4"
+WGET_OPTIONS="-4"
 ```
 
 After getting new certs, services need to be restarted/reloaded.
