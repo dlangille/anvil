@@ -26,6 +26,8 @@ MV="/bin/mv"
 RMDIR="/bin/rmdir"
 SYSRC="/usr/sbin/sysrc"
 
+ECC_SUFFX="_ecc"
+
 ${LOGGER} starting $0
 
 # Find directories, each of which will contain a cert.
@@ -35,12 +37,19 @@ ${LOGGER} starting $0
 # The complete solution is to scan everything.
 # We sort to make it easier when you review the logs.
 # 
-DIRS=`${FIND} ${CERT_SRC} -type d -d 1 | sort`
+DIRS=$(${FIND} ${CERT_SRC} -type d -d 1 | sort)
 for dir in ${DIRS}
 do
-  cert=`${BASENAME} ${dir}`
+  # get the cert name which should be the same as directory in which it resides
+  cert=$(${BASENAME} ${dir})
+
+  # however, for ecc certs, the directory differs.
+  # this pulls off the _ecc suffix, if present.
+  # if not present, nothing changes.
+  cert=${cert%"$ECC_SUFFX"}
+  
   # check the cert config file & ignore anything from staging
-  STAGING_USED=`${SYSRC} -qnf ${CERT_SRC}/${cert}/${cert}.conf Le_API | ${GREP} staging`
+  STAGING_USED=$(${SYSRC} -qnf ${CERT_SRC}/${cert}/${cert}.conf Le_API | ${GREP} staging)
   if [ ! ${STAGING_USED} ]; then
     REFRESH="0"
     # if the dest directory does not exist, or the dest cert does not exist, or the existing cert differs
@@ -51,7 +60,7 @@ do
       REFRESH="1"
     else
       # the files, compare them
-      `$CMP ${CERT_SRC}/${cert}/${cert}.cer ${CERT_DST_CERTS}/${cert}/${cert}.cer`
+      $($CMP ${CERT_SRC}/${cert}/${cert}.cer ${CERT_DST_CERTS}/${cert}/${cert}.cer)
       if [ "$?" != "0" ]; then
         REFRESH="1"
       fi

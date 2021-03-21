@@ -147,15 +147,15 @@ fetch_new_certs(){
 install_new_certs(){
   ${LOGGER} looking for cert files: ${FIND_CERT_FILES}
   # for each new thing we find, move it over to the right place
-  NEW_FILES=`${FIND_CERT_FILES}`
+  NEW_FILES=$(${FIND_CERT_FILES})
   for new_file in ${NEW_FILES}
   do
-    filename=`${BASENAME} ${new_file}`
+    filename=$(${BASENAME} ${new_file})
     ${LOGGER} validating ${filename}
 
     # that cert may not be installed
     if [ -f ${CERT_DST}/${filename} ]; then
-      diff=`${DIFF} ${new_file} ${CERT_DST}/${filename}`
+      diff=$(${DIFF} ${new_file} ${CERT_DST}/${filename})
     else
       diff="x";
       ${LOGGER} ${filename} does not exist and will be installed
@@ -191,7 +191,7 @@ restart_services(){
     case ${service} in
       "apache22" | "apache24")
         ${LOGGER} doing a graceful on ${service}
-        ERRORS=`${SUDO} ${SERVICE} ${service} graceful 2>&1`
+        ERRORS=$(${SUDO} ${SERVICE} ${service} graceful 2>&1)
         if [ $? != 0 ]; then
           ${LOGGER} ERROR on graceful
           ${LOGGER} "${ERRORS}"
@@ -205,7 +205,7 @@ restart_services(){
       # will that be sufficient?
       "dovecot" | "mosquitto" | "nginx" | "postfix" )
         ${LOGGER} restarting ${service}
-        ERRORS=`${SUDO} ${SERVICE} ${service} restart 2>&1`
+        ERRORS=$(${SUDO} ${SERVICE} ${service} restart 2>&1)
         if [ $? != 0 ]; then
           ${LOGGER} ERROR on restart
           ${LOGGER} "${ERRORS}"
@@ -218,7 +218,7 @@ restart_services(){
       # For Postgresql, we only do a reload
       "postgresql" )
         ${LOGGER} reloading ${service}
-        ERRORS=`${SUDO} ${SERVICE} ${service} reload 2>&1`
+        ERRORS=$(${SUDO} ${SERVICE} ${service} reload 2>&1)
         if [ $? != 0 ]; then
           ${LOGGER} ERROR on reload
           ${LOGGER} "${ERRORS}"
@@ -242,7 +242,7 @@ restart_services_user(){
   for service in ${SERVICES_RELOAD}
   do
     ${LOGGER} doing a reload on ${service}
-    ERRORS=`${SUDO} ${SERVICE} ${service} reload 2>&1`
+    ERRORS=$(${SUDO} ${SERVICE} ${service} reload 2>&1)
     if [ $? != 0 ]; then
       ${LOGGER} ERROR on reload
       ${LOGGER} "${ERRORS}"
@@ -255,7 +255,7 @@ restart_services_user(){
   for service in ${SERVICES_RESTART}
   do
     ${LOGGER} doing a restart on ${service}
-    ERRORS=`${SUDO} ${SERVICE} ${service} restart 2>&1`
+    ERRORS=$(${SUDO} ${SERVICE} ${service} restart 2>&1)
     if [ $? != 0 ]; then
       ${LOGGER} ERROR on restart
       ${LOGGER} "${ERRORS}"
