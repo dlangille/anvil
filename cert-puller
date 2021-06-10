@@ -57,7 +57,7 @@ TOUCH="/usr/bin/touch"
 
 usage(){
   echo "Usage: $0 [-s] [-h]"
-  exit 0
+  exit 1
 }
 
 sudo_examples(){
