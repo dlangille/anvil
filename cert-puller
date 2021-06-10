@@ -57,7 +57,7 @@ TOUCH="/usr/bin/touch"
 
 usage(){
   echo "Usage: $0 [-s] [-h]"
-  exit 1
+  exit 0
 }
 
 sudo_examples(){
@@ -291,7 +291,7 @@ done
 #
 if [ ${SUDO_EXAMPLES} == "1" ]; then
   sudo_examples
-  exit 1
+  exit 0
 fi
 
 ${LOGGER} starting $0
