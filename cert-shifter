@@ -80,7 +80,7 @@ do
         ${MV} ${TMP}/${cert} ${CERT_DST_CERTS}/
       fi
     else
-      ${LOGGER} $cert
+      ${LOGGER} no changes for $cert
     fi # yeah, the cert has changed
   else
     ${LOGGER} $cert IS BEING IGNORED BECAUSE IT IS STAGING
