@@ -89,3 +89,7 @@ To use curl, set FETCH_TOOL="curl" in cert-puller.conf
 To use fetch, set FETCH_TOOL to any other value, or remove it from the file.
 
 Yep, lots to work on here.
+
+## Certificate fingerprints for Postfix
+
+If you need certificate fingerprints, say for Postfix, see  also https://github.com/dlangille/fingerprint-shifter
